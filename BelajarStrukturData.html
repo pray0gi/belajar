@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arena Simulasi Struktur Data</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .sim-content {
+            display: none;
+        }
+        .sim-content.active {
+            display: block;
+        }
+        .queue-person, .stack-item, .contact-item {
+            transition: all 0.3s ease-out;
+        }
+        .quiz-option:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+        }
+        .correct-answer {
+            background-color: #22c55e !important;
+            border-color: #16a34a !important;
+        }
+        .wrong-answer {
+            background-color: #ef4444 !important;
+            border-color: #dc2626 !important;
+        }
+        .fade-in {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        /* Styles for Tree Simulation */
+        .tree-node {
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 2px solid transparent;
+        }
+        .tree-node.selected {
+            border-color: #38bdf8; /* sky-400 */
+            box-shadow: 0 0 15px rgba(56, 189, 248, 0.5);
+        }
+        .tree-container ul {
+            position: relative;
+            padding-top: 20px;
+            transition: all 0.5s;
+        }
+        .tree-container li {
+            text-align: center;
+            list-style-type: none;
+            position: relative;
+            padding: 20px 5px 0 5px;
+            transition: all 0.5s;
+        }
+        /* Garis penghubung */
+        .tree-container li::before, .tree-container li::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 50%;
+            border-top: 2px solid #475569; /* slate-600 */
+            width: 50%;
+            height: 20px;
+        }
+        .tree-container li::after {
+            right: auto;
+            left: 50%;
+            border-left: 2px solid #475569;
+        }
+        .tree-container li:only-child::after, .tree-container li:only-child::before {
+            display: none;
+        }
+        .tree-container li:only-child {
+            padding-top: 0;
+        }
+        .tree-container li:first-child::before, .tree-container li:last-child::after {
+            border: 0 none;
+        }
+        .tree-container li:last-child::before {
+            border-right: 2px solid #475569;
+            border-radius: 0 5px 0 0;
+        }
+        .tree-container li:first-child::after {
+            border-radius: 5px 0 0 0;
+        }
+        .tree-container ul ul::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            border-left: 2px solid #475569;
+            width: 0;
+            height: 20px;
+        }
+
+    </style>
+</head>
+<body class="bg-slate-900 text-white">
+
+    <div class="container mx-auto p-4 md:p-8">
+        <header class="text-center mb-8">
+            <h1 class="text-4xl md:text-5xl font-bold bg-gradient-to-r from-sky-400 to-cyan-300 text-transparent bg-clip-text">Arena Simulasi Struktur Data</h1>
+            <p class="text-slate-400 mt-2">Belajar konsep dasar struktur data dengan cara yang menyenangkan!</p>
+        </header>
+
+        <!-- Navigasi Utama -->
+        <nav class="flex justify-center bg-slate-800 rounded-lg p-2 mb-8">
+            <button data-tab="materi" class="tab-btn bg-sky-500 text-white px-4 py-2 rounded-md font-semibold w-1/3 mx-1">Materi</button>
+            <button data-tab="simulasi" class="tab-btn bg-slate-700 text-slate-300 px-4 py-2 rounded-md font-semibold w-1/3 mx-1">Simulasi</button>
+            <button data-tab="kuis" class="tab-btn bg-slate-700 text-slate-300 px-4 py-2 rounded-md font-semibold w-1/3 mx-1">Kuis</button>
+        </nav>
+
+        <main>
+            <!-- Konten Materi -->
+            <div id="materi" class="tab-content active fade-in">
+                <h2 class="text-3xl font-bold mb-6 text-center text-cyan-300">Apa itu Struktur Data?</h2>
+                <p class="max-w-3xl mx-auto text-center text-slate-300 mb-8">Struktur data adalah cara spesifik untuk menyimpan dan mengatur data di dalam komputer agar bisa diakses dan dimodifikasi secara efisien. Bayangkan ini seperti memilih kotak perkakas yang tepat untuk pekerjaan yang berbeda. Setiap struktur punya kelebihan dan kekurangannya masing-masing.</p>
+                
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div class="bg-slate-800 p-6 rounded-lg">
+                        <h3 class="text-2xl font-bold text-sky-400 mb-2">Antrean (Queue)</h3>
+                        <p class="text-slate-400"><strong>Logika:</strong> Pertama Masuk, Pertama Keluar (First-In, First-Out). Seperti antrean di dunia nyata.</p>
+                        <p class="mt-2 text-slate-300"><strong>Contoh:</strong> Antrean di loket bioskop, antrean print dokumen, antrean pesanan di restoran cepat saji.</p>
+                    </div>
+                    <div class="bg-slate-800 p-6 rounded-lg">
+                        <h3 class="text-2xl font-bold text-sky-400 mb-2">Tumpukan (Stack)</h3>
+                        <p class="text-slate-400"><strong>Logika:</strong> Terakhir Masuk, Pertama Keluar (Last-In, First-Out). Seperti tumpukan piring.</p>
+                        <p class="mt-2 text-slate-300"><strong>Contoh:</strong> Fitur "Undo" (Ctrl+Z) di aplikasi, tumpukan kartu, riwayat halaman di browser (tombol back).</p>
+                    </div>
+                    <div class="bg-slate-800 p-6 rounded-lg">
+                        <h3 class="text-2xl font-bold text-sky-400 mb-2">Daftar/Array</h3>
+                        <p class="text-slate-400"><strong>Logika:</strong> Kumpulan data yang disimpan secara berurutan, biasanya diakses menggunakan indeks.</p>
+                        <p class="mt-2 text-slate-300"><strong>Contoh:</strong> Daftar kontak di ponsel, daftar belanjaan, barisan kursi di bioskop.</p>
+                    </div>
+                    <div class="bg-slate-800 p-6 rounded-lg">
+                        <h3 class="text-2xl font-bold text-sky-400 mb-2">Pohon (Tree)</h3>
+                        <p class="text-slate-400"><strong>Logika:</strong> Struktur data hirarkis yang terdiri dari 'node' induk dan 'node' anak.</p>
+                        <p class="mt-2 text-slate-300"><strong>Contoh:</strong> Silsilah keluarga, struktur folder di komputer, diagram organisasi perusahaan.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Konten Simulasi -->
+            <div id="simulasi" class="tab-content fade-in">
+                 <div class="bg-slate-800 rounded-lg p-4">
+                    <nav class="flex flex-wrap justify-center gap-2 mb-4">
+                        <button data-sim="antrean" class="sim-btn bg-sky-500 text-white px-4 py-2 rounded-md font-semibold">Antrean Bioskop</button>
+                        <button data-sim="tumpukan" class="sim-btn bg-slate-700 text-slate-300 px-4 py-2 rounded-md font-semibold">Tumpukan Undo</button>
+                        <button data-sim="kontak" class="sim-btn bg-slate-700 text-slate-300 px-4 py-2 rounded-md font-semibold">Pencarian Kontak</button>
+                        <button data-sim="pohon" class="sim-btn bg-slate-700 text-slate-300 px-4 py-2 rounded-md font-semibold">Pohon Keluarga</button>
+                    </nav>
+
+                    <!-- Simulasi Antrean -->
+                    <div id="sim-antrean" class="sim-content active">
+                        <h3 class="text-xl font-bold text-center text-cyan-300 mb-4">Simulasi: Antrean Tiket Bioskop</h3>
+                        <div class="flex items-center space-x-2 mb-4">
+                            <input type="text" id="personName" placeholder="Nama orang..." class="w-full bg-slate-700 p-2 rounded-md border border-slate-600 focus:ring-2 focus:ring-sky-500 focus:outline-none">
+                            <button id="enqueueBtn" class="bg-sky-500 hover:bg-sky-600 text-white font-bold py-2 px-4 rounded whitespace-nowrap">Masuk Antrean</button>
+                            <button id="dequeueBtn" class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded">Layani</button>
+                        </div>
+                        <p id="queue-message" class="text-center h-6 mb-2 text-green-400"></p>
+                        <div class="bg-slate-900 p-4 rounded-lg min-h-[100px] flex items-center">
+                            <div class="text-slate-500 font-bold mr-4">LOKET</div>
+                            <div id="queue-container" class="flex flex-row-reverse items-center justify-end w-full space-x-2 space-x-reverse">
+                                <!-- Orang di antrean akan muncul di sini -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Simulasi Tumpukan -->
+                    <div id="sim-tumpukan" class="sim-content">
+                        <h3 class="text-xl font-bold text-center text-cyan-300 mb-4">Simulasi: Tumpukan Aksi (Undo)</h3>
+                        <div class="flex items-center space-x-2 mb-4">
+                            <input type="text" id="actionName" placeholder="Ketik sebuah aksi..." class="w-full bg-slate-700 p-2 rounded-md border border-slate-600 focus:ring-2 focus:ring-sky-500 focus:outline-none">
+                            <button id="pushBtn" class="bg-sky-500 hover:bg-sky-600 text-white font-bold py-2 px-4 rounded">Lakukan</button>
+                            <button id="popBtn" class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded">Undo (Ctrl+Z)</button>
+                        </div>
+                        <p id="stack-message" class="text-center h-6 mb-2 text-yellow-400"></p>
+                        <div class="bg-slate-900 p-4 rounded-lg min-h-[250px] flex justify-center items-end">
+                            <div id="stack-container" class="flex flex-col-reverse items-center space-y-2 w-1/2">
+                                <!-- Aksi di tumpukan akan muncul di sini -->
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Simulasi Kontak -->
+                    <div id="sim-kontak" class="sim-content">
+                        <h3 class="text-xl font-bold text-center text-cyan-300 mb-4">Simulasi: Manipulasi & Pencarian Kontak (Array)</h3>
+                         <div class="grid md:grid-cols-2 gap-4 mb-4">
+                            <div class="flex items-center space-x-2">
+                                <input type="text" id="addContactName" placeholder="Ketik nama untuk ditambah..." class="w-full bg-slate-700 p-2 rounded-md border border-slate-600 focus:ring-2 focus:ring-green-500 focus:outline-none">
+                                <button id="addContactBtn" class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded">Tambah</button>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <input type="text" id="contactSearch" placeholder="Ketik nama untuk dicari..." class="w-full bg-slate-700 p-2 rounded-md border border-slate-600 focus:ring-2 focus:ring-sky-500 focus:outline-none">
+                                <button id="searchBtn" class="bg-sky-500 hover:bg-sky-600 text-white font-bold py-2 px-4 rounded">Cari</button>
+                            </div>
+                        </div>
+                        <p id="search-status" class="text-center h-6 mb-2 text-yellow-400"></p>
+                        <div id="contact-list" class="bg-slate-900 p-4 rounded-lg min-h-[150px] flex flex-wrap gap-2 items-center justify-center">
+                            <!-- Daftar kontak akan muncul di sini -->
+                        </div>
+                        <p class="text-sm text-center text-slate-400 mt-4">
+                            Saat mencari, komputer memeriksa data satu per satu (<strong>Pencarian Linear</strong>). Saat menambah, data baru disisipkan sesuai urutan abjad.
+                        </p>
+                    </div>
+                    
+                    <!-- Simulasi Pohon -->
+                    <div id="sim-pohon" class="sim-content">
+                        <h3 class="text-xl font-bold text-center text-cyan-300 mb-4">Simulasi Interaktif: Pohon Silsilah Keluarga</h3>
+                        <div class="grid md:grid-cols-3 gap-6">
+                            <div class="md:col-span-2 bg-slate-900 p-4 rounded-lg overflow-x-auto">
+                                <div id="tree-container" class="tree-container">
+                                    <!-- Pohon akan dirender di sini oleh JavaScript -->
+                                </div>
+                            </div>
+                            <div class="bg-slate-700 p-4 rounded-lg">
+                                <h4 class="font-bold text-lg mb-2 text-sky-400">Panel Kontrol & Informasi</h4>
+                                <div class="mb-4">
+                                    <label for="newNodeName" class="block text-sm font-medium text-slate-300">Nama Anggota Baru:</label>
+                                    <input type="text" id="newNodeName" placeholder="Ketik nama..." class="mt-1 w-full bg-slate-600 p-2 rounded-md border border-slate-500 focus:ring-2 focus:ring-sky-500 focus:outline-none">
+                                </div>
+                                <div class="flex space-x-2 mb-4">
+                                    <button id="addNodeBtn" class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-2 rounded disabled:opacity-50 disabled:cursor-not-allowed">Tambah Anak</button>
+                                    <button id="removeNodeBtn" class="w-full bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-2 rounded disabled:opacity-50 disabled:cursor-not-allowed">Hapus Node</button>
+                                </div>
+                                <p id="tree-status" class="text-center h-6 mb-2 text-yellow-400"></p>
+
+                                <hr class="border-slate-500 my-4">
+                                
+                                <div id="node-info-panel" class="space-y-2">
+                                    <p class="text-slate-400 text-center">Klik pada salah satu anggota keluarga untuk melihat informasinya.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Konten Kuis -->
+            <div id="kuis" class="tab-content fade-in">
+                <div id="quiz-container" class="bg-slate-800 p-6 rounded-lg max-w-2xl mx-auto">
+                    <div id="quiz-header" class="flex justify-between items-center mb-4">
+                        <h2 class="text-2xl font-bold text-cyan-300">Kuis Cepat</h2>
+                        <div class="text-lg font-semibold text-slate-300">Skor: <span id="score">0</span></div>
+                    </div>
+                    <div id="quiz-content">
+                        <p id="question-text" class="text-lg text-slate-200 mb-6 min-h-[50px]"></p>
+                        <div id="options-container" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <!-- Pilihan jawaban akan muncul di sini -->
+                        </div>
+                        <div id="feedback-container" class="mt-6 text-center h-8">
+                            <p id="feedback-text" class="text-xl font-bold"></p>
+                        </div>
+                        <button id="next-question-btn" class="mt-4 w-full bg-sky-500 hover:bg-sky-600 text-white font-bold py-3 px-4 rounded hidden">Lanjut</button>
+                    </div>
+                    <div id="quiz-end-screen" class="hidden text-center">
+                        <h3 class="text-3xl font-bold text-cyan-300">Kuis Selesai!</h3>
+                        <p class="text-xl mt-4">Skor akhir kamu adalah:</p>
+                        <p id="final-score" class="text-5xl font-bold my-4 text-sky-400"></p>
+                        <button id="restart-quiz-btn" class="mt-6 w-full bg-sky-500 hover:bg-sky-600 text-white font-bold py-3 px-4 rounded">Ulangi Kuis</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            
+            // --- LOGIKA NAVIGASI UTAMA ---
+            const tabButtons = document.querySelectorAll('.tab-btn');
+            const tabContents = document.querySelectorAll('.tab-content');
+
+            tabButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const tab = button.dataset.tab;
+
+                    tabButtons.forEach(btn => {
+                        btn.classList.remove('bg-sky-500', 'text-white');
+                        btn.classList.add('bg-slate-700', 'text-slate-300');
+                    });
+                    button.classList.add('bg-sky-500', 'text-white');
+                    button.classList.remove('bg-slate-700', 'text-slate-300');
+
+                    tabContents.forEach(content => {
+                        content.classList.remove('active');
+                    });
+                    document.getElementById(tab).classList.add('active');
+                });
+            });
+            
+            // --- LOGIKA NAVIGASI SIMULASI ---
+            const simButtons = document.querySelectorAll('.sim-btn');
+            const simContents = document.querySelectorAll('.sim-content');
+
+            simButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const sim = button.dataset.sim;
+
+                    simButtons.forEach(btn => {
+                        btn.classList.remove('bg-sky-500', 'text-white');
+                        btn.classList.add('bg-slate-700', 'text-slate-300');
+                    });
+                    button.classList.add('bg-sky-500', 'text-white');
+                    button.classList.remove('bg-slate-700', 'text-slate-300');
+
+                    simContents.forEach(content => {
+                        content.classList.remove('active');
+                    });
+                    document.getElementById('sim-' + sim).classList.add('active');
+                });
+            });
+
+            // --- LOGIKA SIMULASI ANTRIAN (QUEUE) ---
+            const personNameInput = document.getElementById('personName');
+            const enqueueBtn = document.getElementById('enqueueBtn');
+            const dequeueBtn = document.getElementById('dequeueBtn');
+            const queueContainer = document.getElementById('queue-container');
+            const queueMessage = document.getElementById('queue-message');
+            let queueData = [];
+            const renderQueue = () => {
+                queueContainer.innerHTML = '';
+                queueData.forEach((person, index) => {
+                    const personDiv = document.createElement('div');
+                    personDiv.className = 'queue-person bg-cyan-600 text-white font-semibold py-2 px-4 rounded-full shadow-md fade-in';
+                    personDiv.textContent = person;
+                    queueContainer.appendChild(personDiv);
+                });
+            };
+            enqueueBtn.addEventListener('click', () => {
+                const name = personNameInput.value.trim();
+                if (name && queueData.length < 7) {
+                    queueData.push(name);
+                    renderQueue();
+                    personNameInput.value = '';
+                    queueMessage.textContent = '';
+                } else if (queueData.length >= 7) {
+                    queueMessage.textContent = 'Antrean sudah penuh!';
+                    setTimeout(() => queueMessage.textContent = '', 2000);
+                }
+            });
+            dequeueBtn.addEventListener('click', () => {
+                if (queueData.length > 0) {
+                    const servedPerson = queueData.shift();
+                    queueMessage.textContent = `${servedPerson} sedang dilayani!`;
+                    setTimeout(() => queueMessage.textContent = '', 2000);
+                    renderQueue();
+                }
+            });
+
+            // --- LOGIKA SIMULASI TUMPUKAN (STACK) ---
+            const actionNameInput = document.getElementById('actionName');
+            const pushBtn = document.getElementById('pushBtn');
+            const popBtn = document.getElementById('popBtn');
+            const stackContainer = document.getElementById('stack-container');
+            const stackMessage = document.getElementById('stack-message');
+            let stackData = [];
+            const renderStack = () => {
+                stackContainer.innerHTML = '';
+                 stackData.forEach(action => {
+                    const actionDiv = document.createElement('div');
+                    actionDiv.className = 'stack-item w-full bg-teal-600 text-white font-semibold py-2 px-4 rounded-md shadow-lg text-center fade-in';
+                    actionDiv.textContent = action;
+                    stackContainer.appendChild(actionDiv);
+                });
+            };
+            pushBtn.addEventListener('click', () => {
+                const action = actionNameInput.value.trim();
+                if (action && stackData.length < 5) {
+                    stackData.push(action);
+                    renderStack();
+                    actionNameInput.value = '';
+                    stackMessage.textContent = '';
+                } else if (stackData.length >= 5) {
+                    stackMessage.textContent = 'Tumpukan sudah penuh!';
+                    setTimeout(() => stackMessage.textContent = '', 2000);
+                }
+            });
+            popBtn.addEventListener('click', () => {
+                if (stackData.length > 0) {
+                    const undoneAction = stackData.pop();
+                    stackMessage.textContent = `Aksi "${undoneAction}" dibatalkan!`;
+                    setTimeout(() => stackMessage.textContent = '', 2000);
+                    renderStack();
+                }
+            });
+
+            // --- LOGIKA SIMULASI KONTAK (ARRAY) ---
+            const contactSearchInput = document.getElementById('contactSearch');
+            const searchBtn = document.getElementById('searchBtn');
+            const addContactNameInput = document.getElementById('addContactName');
+            const addContactBtn = document.getElementById('addContactBtn');
+            const contactListContainer = document.getElementById('contact-list');
+            const searchStatusEl = document.getElementById('search-status');
+            let contacts = ["Adi", "Budi", "Citra", "Dewi", "Eka", "Fani", "Gita", "Hadi", "Indah", "Joko", "Kiki", "Lina"];
+            let isSearching = false;
+            const renderContacts = () => {
+                contactListContainer.innerHTML = '';
+                contacts.forEach((contact, index) => {
+                    const contactItem = document.createElement('div');
+                    contactItem.className = 'contact-item group relative flex items-center bg-slate-800 rounded-md text-slate-300 transition-all duration-300 border-2 border-transparent';
+                    contactItem.innerHTML = `<div class="bg-slate-700 text-slate-400 font-mono text-sm py-3 px-2 rounded-l-md">${index}</div><div class="py-3 px-4 flex-grow">${contact}</div><button data-index="${index}" class="delete-contact-btn absolute top-1/2 right-2 -translate-y-1/2 bg-red-600 hover:bg-red-700 text-white rounded-full h-6 w-6 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity" title="Hapus ${contact}"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg></button>`;
+                    contactItem.dataset.index = index;
+                    contactListContainer.appendChild(contactItem);
+                });
+                document.querySelectorAll('.delete-contact-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        const indexToDelete = parseInt(e.currentTarget.dataset.index);
+                        deleteContact(indexToDelete);
+                    });
+                });
+            };
+            const deleteContact = (index) => {
+                if (isSearching) return;
+                const deletedName = contacts[index];
+                contacts.splice(index, 1);
+                searchStatusEl.textContent = `Kontak "${deletedName}" telah dihapus.`;
+                searchStatusEl.className = 'text-center h-6 mb-2 text-red-400';
+                renderContacts();
+                setTimeout(() => searchStatusEl.textContent = '', 2000);
+            };
+            const addContact = () => {
+                if (isSearching) return;
+                const name = addContactNameInput.value.trim();
+                if (!name) return;
+                if (contacts.find(c => c.toLowerCase() === name.toLowerCase())) {
+                    searchStatusEl.textContent = `Kontak "${name}" sudah ada.`;
+                    searchStatusEl.className = 'text-center h-6 mb-2 text-yellow-400';
+                    setTimeout(() => searchStatusEl.textContent = '', 2000);
+                    return;
+                }
+                contacts.push(name);
+                contacts.sort((a, b) => a.localeCompare(b));
+                searchStatusEl.textContent = `Kontak "${name}" berhasil ditambahkan.`;
+                searchStatusEl.className = 'text-center h-6 mb-2 text-green-400';
+                addContactNameInput.value = '';
+                renderContacts();
+                setTimeout(() => searchStatusEl.textContent = '', 2000);
+            };
+            addContactBtn.addEventListener('click', addContact);
+            addContactNameInput.addEventListener('keyup', (e) => {
+                if (e.key === 'Enter') addContact();
+            });
+            const visualizeSearch = (query) => {
+                if (isSearching || !query) return;
+                isSearching = true;
+                searchBtn.disabled = true;
+                searchBtn.textContent = 'Mencari...';
+                addContactBtn.disabled = true;
+                renderContacts();
+                let found = false;
+                let i = 0;
+                const searchStep = () => {
+                    if (i >= contacts.length || found) {
+                        isSearching = false;
+                        searchBtn.disabled = false;
+                        searchBtn.textContent = 'Cari';
+                        addContactBtn.disabled = false;
+                        if (!found) {
+                            searchStatusEl.textContent = `Pencarian selesai. Kontak "${query}" tidak ditemukan.`;
+                            searchStatusEl.className = 'text-center h-6 mb-2 text-red-400';
+                        }
+                        const lastCheckedElement = contactListContainer.querySelector(`[data-index="${i-1}"]`);
+                        if(lastCheckedElement && !found) lastCheckedElement.classList.remove('border-yellow-400');
+                        return;
+                    }
+                    searchStatusEl.textContent = `Memeriksa indeks ke-${i}: "${contacts[i]}"...`;
+                    searchStatusEl.className = 'text-center h-6 mb-2 text-yellow-400';
+                    const currentElement = contactListContainer.querySelector(`[data-index="${i}"]`);
+                    currentElement.classList.add('border-yellow-400');
+                    const prevElement = contactListContainer.querySelector(`[data-index="${i-1}"]`);
+                    if(prevElement) prevElement.classList.remove('border-yellow-400');
+                    if (contacts[i].toLowerCase() === query.toLowerCase()) {
+                        found = true;
+                        currentElement.classList.remove('border-yellow-400');
+                        currentElement.classList.add('bg-green-600', 'border-green-400');
+                        currentElement.querySelector('div:first-child').classList.add('bg-green-700');
+                        searchStatusEl.textContent = `Kontak "${contacts[i]}" ditemukan di indeks ke-${i}!`;
+                        searchStatusEl.className = 'text-center h-6 mb-2 text-green-400';
+                    }
+                    i++;
+                    setTimeout(searchStep, 400);
+                };
+                searchStep();
+            };
+            searchBtn.addEventListener('click', () => {
+                const query = contactSearchInput.value.trim();
+                visualizeSearch(query);
+            });
+            contactSearchInput.addEventListener('keyup', (e) => {
+                if (e.key === 'Enter') {
+                    const query = contactSearchInput.value.trim();
+                    visualizeSearch(query);
+                }
+            });
+            renderContacts();
+            
+            // --- LOGIKA SIMULasi POHON (TREE) ---
+            const treeContainer = document.getElementById('tree-container');
+            const newNodeNameInput = document.getElementById('newNodeName');
+            const addNodeBtn = document.getElementById('addNodeBtn');
+            const removeNodeBtn = document.getElementById('removeNodeBtn');
+            const nodeInfoPanel = document.getElementById('node-info-panel');
+            const treeStatus = document.getElementById('tree-status');
+
+            let nextNodeId = 4;
+            let treeData = {
+                id: 1, name: "Kakek & Nenek",
+                children: [
+                    { id: 2, name: "Ayah", children: [
+                        { id: 4, name: "Anak 1", children: [] }
+                    ]},
+                    { id: 3, name: "Bibi", children: [] }
+                ]
+            };
+            let selectedNode = { id: null, element: null, parent: null };
+            
+            function findNode(id, node = treeData, parent = null) {
+                if (node.id === id) return {node, parent};
+                for (const child of node.children) {
+                    const found = findNode(id, child, node);
+                    if (found) return found;
+                }
+                return null;
+            }
+
+            function renderTree(nodeData) {
+                const li = document.createElement('li');
+                const div = document.createElement('div');
+                div.textContent = nodeData.name;
+                div.dataset.id = nodeData.id;
+                div.className = 'tree-node inline-block bg-sky-600 p-2 px-4 rounded-lg';
+                
+                if (selectedNode.id === nodeData.id) {
+                    div.classList.add('selected');
+                }
+
+                li.appendChild(div);
+
+                if (nodeData.children && nodeData.children.length > 0) {
+                    const ul = document.createElement('ul');
+                    ul.className = "flex justify-center";
+                    nodeData.children.forEach(child => {
+                        ul.appendChild(renderTree(child));
+                    });
+                    li.appendChild(ul);
+                }
+                return li;
+            }
+            
+            function displayTree() {
+                treeContainer.innerHTML = '';
+                const ul = document.createElement('ul');
+                ul.appendChild(renderTree(treeData));
+                treeContainer.appendChild(ul);
+            }
+
+            function updateInfoPanel() {
+                if (!selectedNode.id) {
+                    nodeInfoPanel.innerHTML = `<p class="text-slate-400 text-center">Klik pada salah satu anggota keluarga untuk melihat informasinya.</p>`;
+                    addNodeBtn.disabled = true;
+                    removeNodeBtn.disabled = true;
+                    return;
+                }
+
+                const { node, parent } = findNode(selectedNode.id);
+                let infoHTML = `
+                    <div><span class="font-bold text-slate-300">Nama Node:</span> <span class="text-cyan-300">${node.name}</span></div>
+                    <div><span class="font-bold text-slate-300">Tipe Node:</span> <span class="text-cyan-300">${parent ? (node.children.length > 0 ? 'Induk (Parent)' : 'Daun (Leaf)') : 'Akar (Root)'}</span></div>
+                `;
+                if(parent) {
+                    infoHTML += `<div><span class="font-bold text-slate-300">Induknya:</span> <span class="text-cyan-300">${parent.name}</span></div>`;
+                }
+                if(node.children.length > 0) {
+                     infoHTML += `<div><span class="font-bold text-slate-300">Anaknya:</span> <span class="text-cyan-300">${node.children.map(c => c.name).join(', ')}</span></div>`;
+                }
+                nodeInfoPanel.innerHTML = infoHTML;
+                addNodeBtn.disabled = false;
+                removeNodeBtn.disabled = (parent === null); // Root tidak bisa dihapus
+            }
+            
+            treeContainer.addEventListener('click', (e) => {
+                if (e.target.classList.contains('tree-node')) {
+                    const id = parseInt(e.target.dataset.id);
+                    if (selectedNode.element) {
+                        selectedNode.element.classList.remove('selected');
+                    }
+                    selectedNode = { id: id, element: e.target };
+                    e.target.classList.add('selected');
+                    updateInfoPanel();
+                }
+            });
+
+            addNodeBtn.addEventListener('click', () => {
+                const name = newNodeNameInput.value.trim();
+                if (!name) {
+                    treeStatus.textContent = "Nama tidak boleh kosong!";
+                    setTimeout(() => treeStatus.textContent = '', 2000);
+                    return;
+                }
+                if (!selectedNode.id) {
+                     treeStatus.textContent = "Pilih node induk terlebih dahulu!";
+                     setTimeout(() => treeStatus.textContent = '', 2000);
+                     return;
+                }
+
+                const { node: parentNode } = findNode(selectedNode.id);
+                parentNode.children.push({ id: ++nextNodeId, name, children: [] });
+                newNodeNameInput.value = '';
+                treeStatus.textContent = '';
+                displayTree();
+                // Re-select the parent node visually after re-render
+                const newSelectedElement = treeContainer.querySelector(`[data-id='${selectedNode.id}']`);
+                if(newSelectedElement) {
+                    selectedNode.element = newSelectedElement;
+                    newSelectedElement.classList.add('selected');
+                }
+                updateInfoPanel();
+            });
+            
+            removeNodeBtn.addEventListener('click', () => {
+                if (!selectedNode.id) {
+                    treeStatus.textContent = "Pilih node yang akan dihapus!";
+                    setTimeout(() => treeStatus.textContent = '', 2000);
+                    return;
+                }
+                 const { parent } = findNode(selectedNode.id);
+                 if (parent === null) {
+                    treeStatus.textContent = "Node akar tidak bisa dihapus!";
+                    setTimeout(() => treeStatus.textContent = '', 2000);
+                    return;
+                 }
+                 
+                 parent.children = parent.children.filter(child => child.id !== selectedNode.id);
+                 selectedNode = { id: null, element: null };
+                 displayTree();
+                 updateInfoPanel();
+            });
+
+            displayTree();
+            updateInfoPanel();
+
+
+            // --- LOGIKA KUIS ---
+            const quizData = [
+                // Soal Antrean (Queue)
+                { question: "Di aplikasi ojek online, sistem harus menentukan driver mana yang akan mendapatkan orderan terlebih dahulu. Biasanya, driver yang menunggu paling lama akan diprioritaskan. Struktur data apa yang paling cocok untuk ini?", options: ["Tumpukan (Stack)", "Antrean (Queue)", "Pohon (Tree)", "Daftar (Array)"], answer: 1 },
+                { question: "Saat kamu mengirim beberapa file untuk di-print, printer akan mencetak dokumen sesuai urutan pengiriman. Prinsip kerja printer ini meniru struktur data...", options: ["Tumpukan (Stack)", "Pohon (Tree)", "Antrean (Queue)", "Daftar (Array)"], answer: 2 },
+                { question: "Fitur live chat pada sebuah website layanan pelanggan harus menampilkan dan membalas pesan dari customer sesuai urutan pesan yang masuk. Sistem ini sebaiknya menggunakan...", options: ["Tumpukan (Stack)", "Pohon (Tree)", "Daftar (Array)", "Antrean (Queue)"], answer: 3 },
+                
+                // Soal Tumpukan (Stack)
+                { question: "Tombol 'Back' atau 'Kembali' pada browser web membawamu ke halaman yang kamu kunjungi sebelumnya. Riwayat halaman ini paling efisien disimpan menggunakan...", options: ["Antrean (Queue)", "Pohon (Tree)", "Tumpukan (Stack)", "Daftar (Array)"], answer: 2 },
+                { question: "Saat kamu menumpuk kartu remi satu per satu, kartu yang terakhir kamu letakkan di atas adalah kartu pertama yang akan kamu ambil kembali. Logika ini identik dengan...", options: ["Antrean (Queue)", "Tumpukan (Stack)", "Pohon (Tree)", "Daftar (Array)"], answer: 1 },
+                { question: "Ketika sebuah program komputer memanggil serangkaian fungsi (fungsi A memanggil B, B memanggil C), fungsi yang terakhir dipanggil (C) harus selesai terlebih dahulu. Mekanisme ini disebut 'call stack' yang menggunakan prinsip...", options: ["Tumpukan (Stack)", "Antrean (Queue)", "Pohon (Tree)", "Array"], answer: 0 },
+
+                // Soal Daftar/Array
+                { question: "Daftar lagu dalam sebuah playlist memungkinkanmu memutar lagu nomor 5 secara langsung tanpa mendengarkan lagu 1-4. Kemampuan akses langsung via indeks ini adalah ciri khas dari...", options: ["Tumpukan (Stack)", "Pohon (Tree)", "Antrean (Queue)", "Daftar (Array)"], answer: 3 },
+                { question: "Kursi di dalam bioskop atau gerbong kereta api biasanya diberi nomor urut yang jelas (Kursi 1A, 1B, 2A, dst.) agar mudah ditemukan. Pengaturan ini meniru konsep dasar dari...", options: ["Tumpukan (Stack)", "Antrean (Queue)", "Daftar (Array)", "Pohon (Tree)"], answer: 2 },
+                { question: "Dalam sebuah spreadsheet (seperti Excel), setiap baris dan kolom memiliki alamat yang jelas (misal: sel A1, C5). Struktur grid pada spreadsheet ini adalah implementasi dari...", options: ["Array dua dimensi", "Tumpukan (Stack)", "Antrean (Queue)", "Pohon (Tree)"], answer: 0 },
+
+                // Soal Pohon (Tree)
+                { question: "Di sebuah situs e-commerce, terdapat kategori produk seperti 'Elektronik' -> 'Handphone' -> 'Android'. Struktur kategori yang bercabang ini adalah contoh dari...", options: ["Antrean (Queue)", "Tumpukan (Stack)", "Pohon (Tree)", "Daftar (Array)"], answer: 2 },
+                { question: "Sistem komentar di media sosial seringkali memiliki fitur 'balas' (reply), di mana sebuah balasan terhubung ke komentar induknya. Hubungan ini membentuk struktur data...", options: ["Daftar (Array)", "Pohon (Tree)", "Tumpukan (Stack)", "Antrean (Queue)"], answer: 1 },
+                { question: "Diagram struktur organisasi di sebuah perusahaan menunjukkan siapa melapor ke siapa, dari Direktur Utama di puncak hingga staf. Hirarki ini paling tepat digambarkan menggunakan...", options: ["Tumpukan (Stack)", "Antrean (Queue)", "Daftar (Array)", "Pohon (Tree)"], answer: 3 }
+            ];
+
+            const scoreEl = document.getElementById('score');
+            const questionTextEl = document.getElementById('question-text');
+            const optionsContainerEl = document.getElementById('options-container');
+            const feedbackTextEl = document.getElementById('feedback-text');
+            const nextBtn = document.getElementById('next-question-btn');
+            const quizContentEl = document.getElementById('quiz-content');
+            const quizEndScreenEl = document.getElementById('quiz-end-screen');
+            const finalScoreEl = document.getElementById('final-score');
+            const restartBtn = document.getElementById('restart-quiz-btn');
+
+            let currentQuestionIndex = 0;
+            let score = 0;
+
+            function startQuiz() {
+                // Mengacak urutan soal sebelum kuis dimulai
+                for (let i = quizData.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [quizData[i], quizData[j]] = [quizData[j], quizData[i]];
+                }
+
+                currentQuestionIndex = 0;
+                score = 0;
+                scoreEl.textContent = score;
+                quizContentEl.style.display = 'block';
+                quizEndScreenEl.style.display = 'none';
+                nextBtn.classList.add('hidden');
+                loadQuestion();
+            }
+
+            function loadQuestion() {
+                feedbackTextEl.textContent = '';
+                nextBtn.classList.add('hidden');
+                const currentQuestion = quizData[currentQuestionIndex];
+                questionTextEl.textContent = `(${currentQuestionIndex + 1}/${quizData.length}) ${currentQuestion.question}`;
+                optionsContainerEl.innerHTML = '';
+                currentQuestion.options.forEach((option, index) => {
+                    const button = document.createElement('button');
+                    button.textContent = option;
+                    button.className = 'quiz-option w-full bg-slate-700 hover:bg-slate-600 text-slate-200 font-semibold py-3 px-4 rounded-md transition duration-200';
+                    button.dataset.index = index;
+                    button.addEventListener('click', selectAnswer);
+                    optionsContainerEl.appendChild(button);
+                });
+            }
+
+            function selectAnswer(e) {
+                const selectedButton = e.target;
+                const selectedAnswerIndex = parseInt(selectedButton.dataset.index);
+                const correctAnswerIndex = quizData[currentQuestionIndex].answer;
+
+                Array.from(optionsContainerEl.children).forEach(button => {
+                    button.disabled = true; 
+                    if (parseInt(button.dataset.index) === correctAnswerIndex) {
+                        button.classList.add('correct-answer');
+                    }
+                });
+
+                if (selectedAnswerIndex === correctAnswerIndex) {
+                    score++;
+                    scoreEl.textContent = score;
+                    feedbackTextEl.textContent = 'Benar!';
+                    feedbackTextEl.className = 'text-xl font-bold text-green-400';
+                } else {
+                    selectedButton.classList.add('wrong-answer');
+                    feedbackTextEl.textContent = 'Salah!';
+                    feedbackTextEl.className = 'text-xl font-bold text-red-400';
+                }
+                
+                nextBtn.classList.remove('hidden');
+            }
+            
+            nextBtn.addEventListener('click', () => {
+                currentQuestionIndex++;
+                if(currentQuestionIndex < quizData.length) {
+                    loadQuestion();
+                } else {
+                    showEndScreen();
+                }
+            });
+
+            restartBtn.addEventListener('click', startQuiz);
+            
+            function showEndScreen() {
+                quizContentEl.style.display = 'none';
+                quizEndScreenEl.style.display = 'block';
+                finalScoreEl.textContent = `${score} / ${quizData.length}`;
+            }
+
+            startQuiz();
+        });
+    </script>
+</body>
+</html>
+
